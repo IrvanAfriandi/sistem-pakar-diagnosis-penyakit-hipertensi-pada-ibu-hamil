@@ -660,6 +660,7 @@
                 return 0;
             }
         }
+        
         async function saveDiagnosisResult(diagnosisName, confidenceLevel, konsultasiId) {
             try {
                 console.log('Saving diagnosis result to database...', {
@@ -1000,77 +1001,226 @@
                 }
 
                 const { jsPDF } = window.jspdf;
+                
+                // Get all necessary data
                 const result = document.getElementById('diagnosisResult').textContent || 'Tidak diketahui';
                 const confidence = document.getElementById('confidenceBadge').textContent || '0%';
                 const patientName = document.getElementById('patientName').textContent || 'Pasien';
+                const patientAge = document.getElementById('patientAge').textContent || 'N/A';
+                const patientEmail = document.getElementById('patientEmail').textContent || 'N/A';
+                const consultationDate = document.getElementById('consultationDate').textContent || new Date().toLocaleDateString('id-ID');
                 const currentDate = new Date().toLocaleDateString('id-ID');
+                const currentTime = new Date().toLocaleTimeString('id-ID');
 
-                const doc = new jsPDF();
+                // Create A4 PDF (210 x 297 mm)
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                let yPosition = margin;
 
-                // Header
-                doc.setFontSize(18);
-                doc.setTextColor(40, 40, 40);
+                // Header Background
+                doc.setFillColor(59, 130, 246); // Primary blue
+                doc.rect(0, 0, pageWidth, 35, 'F');
+
+                // Header Logo Area (optional - you can add logo here)
+                doc.setFillColor(255, 255, 255);
+                doc.circle(25, 17.5, 8, 'F');
+                doc.setTextColor(59, 130, 246);
+                doc.setFontSize(16);
                 doc.setFont('helvetica', 'bold');
-                doc.text("Hasil Diagnosis HyperCare", 105, 20, null, null, 'center');
+                doc.text("HC", 25, 20, null, null, 'center');
 
-                // Line
-                doc.setDrawColor(100, 100, 100);
-                doc.line(20, 25, 190, 25);
-
-                // Patient Info
+                // Header Title
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text("HYPERCARE", 45, 20);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
-                doc.setTextColor(60, 60, 60);
-                doc.text(`Tanggal: ${currentDate}`, 20, 35);
-                doc.text(`Nama Pasien: ${patientName}`, 20, 43);
+                doc.text("Sistem Diagnosis Hipertensi Gestasional", 45, 27);
 
-                // Diagnosis
+                // Document Info
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text(`Dicetak: ${currentDate} ${currentTime}`, pageWidth - margin, 15, null, null, 'right');
+                doc.text(`ID Konsultasi: ${systemData.konsultasi?.id_konsultasi || 'N/A'}`, pageWidth - margin, 22, null, null, 'right');
+
+                yPosition = 50;
+
+                // Patient Information Section
+                doc.setFillColor(248, 250, 252); // Light gray background
+                doc.rect(margin, yPosition, contentWidth, 40, 'F');
+                doc.setDrawColor(220, 220, 220);
+                doc.rect(margin, yPosition, contentWidth, 40, 'S');
+
+                doc.setTextColor(31, 41, 55);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text("INFORMASI PASIEN", margin + 5, yPosition + 8);
+
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Nama Lengkap: ${patientName}`, margin + 5, yPosition + 18);
+                doc.text(`Usia: ${patientAge}`, margin + 5, yPosition + 25);
+                doc.text(`Email: ${patientEmail}`, margin + 5, yPosition + 32);
+                doc.text(`Tanggal Konsultasi: ${consultationDate}`, margin + 100, yPosition + 18);
+
+                yPosition += 55;
+
+                // Primary Diagnosis Section
+                doc.setFillColor(16, 185, 129); // Success green
+                doc.rect(margin, yPosition, contentWidth, 12, 'F');
+                doc.setTextColor(255, 255, 255);
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
-                doc.setTextColor(0, 0, 128);
-                doc.text("Diagnosis Utama", 20, 60);
+                doc.text("HASIL DIAGNOSIS UTAMA", margin + 5, yPosition + 8);
 
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(50, 50, 50);
-                doc.text(result, 20, 68);
+                yPosition += 20;
 
-                doc.setTextColor(0, 100, 0);
-                doc.text(`Tingkat Kepercayaan: ${confidence}`, 20, 76);
+                // Diagnosis result box
+                doc.setFillColor(239, 246, 255); // Light blue
+                doc.rect(margin, yPosition, contentWidth, 25, 'F');
+                doc.setDrawColor(59, 130, 246);
+                doc.rect(margin, yPosition, contentWidth, 25, 'S');
 
-                // Line
-                doc.setDrawColor(200, 200, 200);
-                doc.line(20, 85, 190, 85);
-
-                // Disclaimer
-                doc.setFontSize(11);
-                doc.setTextColor(100, 0, 0);
+                doc.setTextColor(59, 130, 246);
+                doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
-                doc.text("DISCLAIMER:", 20, 95);
+                doc.text(result, margin + 5, yPosition + 10);
 
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(80, 80, 80);
-                const disclaimer = [
-                    "Hasil diagnosis ini hanya sebagai referensi awal.",
-                    "Untuk diagnosis yang akurat dan penanganan yang tepat,",
-                    "silakan konsultasikan dengan dokter atau tenaga medis profesional."
-                ];
-                doc.text(disclaimer, 20, 103);
+                doc.setTextColor(16, 185, 129);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Tingkat Kepercayaan: ${confidence}`, margin + 5, yPosition + 20);
 
-                // Footer
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text("Generated by HyperCare", 105, 280, null, null, 'center');
+                yPosition += 35;
 
+                // Selected Symptoms Section
+                if (systemData.konsultasi && systemData.konsultasi.detail_konsultasi && systemData.konsultasi.detail_konsultasi.length > 0) {
+                    doc.setFillColor(245, 158, 11); // Warning orange
+                    doc.rect(margin, yPosition, contentWidth, 12, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text("GEJALA YANG DIPILIH", margin + 5, yPosition + 8);
+
+                    yPosition += 20;
+
+                    const details = systemData.konsultasi.detail_konsultasi;
+                    const sortedDetails = [...details].sort((a, b) => parseFloat(b.cf_pasien) - parseFloat(a.cf_pasien));
+
+                    sortedDetails.forEach((detail, index) => {
+                        try {
+                            const symptomId = parseInt(detail.id_gejala);
+                            const cfPasien = parseFloat(detail.cf_pasien);
+                            
+                            if (isNaN(symptomId) || isNaN(cfPasien)) return;
+                            
+                            const symptom = systemData.symptoms.find(s => parseInt(s.id_gejala) === symptomId);
+                            const namaGejala = symptom ? symptom.nama_gejala : `Gejala ID: ${symptomId}`;
+                            const cfPercentage = Math.round(cfPasien * 100);
+
+                            // Check if we need a new page
+                            if (yPosition > 250) {
+                                doc.addPage();
+                                yPosition = margin;
+                            }
+
+                            // Symptom item background
+                            doc.setFillColor(249, 250, 251);
+                            doc.rect(margin, yPosition, contentWidth, 15, 'F');
+                            doc.setDrawColor(229, 231, 235);
+                            doc.rect(margin, yPosition, contentWidth, 15, 'S');
+
+                            // Symptom number
+                            doc.setFillColor(59, 130, 246);
+                            doc.circle(margin + 8, yPosition + 7.5, 3, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(10);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text((index + 1).toString(), margin + 8, yPosition + 9, null, null, 'center');
+
+                            // Symptom text
+                            doc.setTextColor(31, 41, 55);
+                            doc.setFontSize(10);
+                            doc.setFont('helvetica', 'normal');
+                            doc.text(namaGejala, margin + 15, yPosition + 6);
+
+                            // Confidence badge
+                            let badgeColor = [239, 68, 68]; // Red
+                            if (cfPasien >= 0.8) badgeColor = [16, 185, 129]; // Green
+                            else if (cfPasien >= 0.6) badgeColor = [245, 158, 11]; // Orange
+                            else if (cfPasien >= 0.4) badgeColor = [245, 158, 11]; // Orange
+
+                            doc.setFillColor(...badgeColor);
+                            doc.roundedRect(pageWidth - margin - 25, yPosition + 3, 20, 9, 2, 2, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(9);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(`${cfPercentage}%`, pageWidth - margin - 15, yPosition + 9, null, null, 'center');
+
+                            yPosition += 18;
+                        } catch (err) {
+                            console.error('Error processing symptom for PDF:', err);
+                        }
+                    });
+
+                    yPosition += 10;
+                }
+
+                // Check if we need a new page
+                if (yPosition > 200) {
+                    doc.addPage();
+                    yPosition = margin;
+                }
+
+                // Alternative Diagnoses Section
+                const altDiagnosesEl = document.getElementById('alternativeDiagnoses');
+                if (altDiagnosesEl && altDiagnosesEl.innerHTML.includes('border rounded')) {
+                    doc.setFillColor(139, 69, 19); // Brown
+                    doc.rect(margin, yPosition, contentWidth, 12, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text("KEMUNGKINAN DIAGNOSIS LAINNYA", margin + 5, yPosition + 8);
+
+                    yPosition += 20;
+
+                    // Parse alternative diagnoses from DOM
+                    const altElements = altDiagnosesEl.querySelectorAll('.border.rounded');
+                    altElements.forEach((element, index) => {
+                        if (index < 3) { // Limit to 3 alternatives
+                            const diagnosisName = element.querySelector('.fw-semibold')?.textContent || '';
+                            const confidence = element.querySelector('.badge')?.textContent || '';
+
+                            doc.setFillColor(253, 246, 178);
+                            doc.rect(margin, yPosition, contentWidth, 12, 'F');
+                            doc.setDrawColor(245, 158, 11);
+                            doc.rect(margin, yPosition, contentWidth, 12, 'S');
+
+                            doc.setTextColor(92, 64, 0);
+                            doc.setFontSize(11);
+                            doc.setFont('helvetica', 'normal');
+                            doc.text(`${index + 1}. ${diagnosisName}`, margin + 5, yPosition + 6);
+                            doc.text(confidence, pageWidth - margin - 15, yPosition + 6, null, null, 'right');
+
+                            yPosition += 15;
+                        }
+                    });
+
+                    yPosition += 10;
+                }
                 // Save PDF
                 const filename = `Hasil_Diagnosis_${patientName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
                 doc.save(filename);
 
-                console.log('PDF Download completed');
-                showNotification('Hasil diagnosis berhasil diunduh!', 'success');
+                console.log('Enhanced PDF Download completed');
+                showNotification('Hasil diagnosis lengkap berhasil diunduh!', 'success');
 
             } catch (error) {
-                console.error('Error generating PDF:', error);
+                console.error('Error generating enhanced PDF:', error);
                 downloadTextResult(); // Fallback
             }
         }
@@ -1081,41 +1231,100 @@
                 const result = document.getElementById('diagnosisResult').textContent || 'Tidak diketahui';
                 const confidence = document.getElementById('confidenceBadge').textContent || '0%';
                 const patientName = document.getElementById('patientName').textContent || 'Pasien';
+                const patientAge = document.getElementById('patientAge').textContent || 'N/A';
+                const patientEmail = document.getElementById('patientEmail').textContent || 'N/A';
+                const consultationDate = document.getElementById('consultationDate').textContent || new Date().toLocaleDateString('id-ID');
                 const currentDate = new Date().toLocaleDateString('id-ID');
+                const currentTime = new Date().toLocaleTimeString('id-ID');
                 
-                const content = `
-                === HASIL DIAGNOSIS HYPERCARE ===
+                let content = `
+=================================================================
+                    HASIL DIAGNOSIS HYPERCARE
+=================================================================
 
-                Tanggal: ${currentDate}
-                Pasien: ${patientName}
+INFORMASI DOKUMEN:
+Dicetak pada      : ${currentDate} ${currentTime}
+ID Konsultasi     : ${systemData.konsultasi?.id_konsultasi || 'N/A'}
 
-                DIAGNOSIS UTAMA:
-                ${result}
-                Tingkat Kepercayaan: ${confidence}
+INFORMASI PASIEN:
+Nama Lengkap      : ${patientName}
+Usia              : ${patientAge}
+Email             : ${patientEmail}
+Tanggal Konsultasi: ${consultationDate}
 
-                DISCLAIMER:
-                Hasil diagnosis ini hanya sebagai referensi awal.
-                Untuk diagnosis yang akurat dan penanganan yang tepat,
-                silakan konsultasikan dengan dokter atau tenaga medis profesional.
+=================================================================
+HASIL DIAGNOSIS UTAMA:
+=================================================================
+Diagnosis         : ${result}
+Tingkat Kepercayaan: ${confidence}
 
-                Generated by HyperCare System
-                `.trim();
+                `;
+
+                // Add selected symptoms
+                if (systemData.konsultasi && systemData.konsultasi.detail_konsultasi && systemData.konsultasi.detail_konsultasi.length > 0) {
+                    content += `
+=================================================================
+GEJALA YANG DIPILIH:
+=================================================================
+`;
+                    const details = systemData.konsultasi.detail_konsultasi;
+                    const sortedDetails = [...details].sort((a, b) => parseFloat(b.cf_pasien) - parseFloat(a.cf_pasien));
+                    
+                    sortedDetails.forEach((detail, index) => {
+                        try {
+                            const symptomId = parseInt(detail.id_gejala);
+                            const cfPasien = parseFloat(detail.cf_pasien);
+                            
+                            if (isNaN(symptomId) || isNaN(cfPasien)) return;
+                            
+                            const symptom = systemData.symptoms.find(s => parseInt(s.id_gejala) === symptomId);
+                            const namaGejala = symptom ? symptom.nama_gejala : `Gejala ID: ${symptomId}`;
+                            const cfPercentage = Math.round(cfPasien * 100);
+                            
+                            content += `${index + 1}. ${namaGejala} - Tingkat Keyakinan: ${cfPercentage}%\n`;
+                        } catch (err) {
+                            console.error('Error processing symptom for text:', err);
+                        }
+                    });
+                }
+
+                // Add alternative diagnoses
+                const altDiagnosesEl = document.getElementById('alternativeDiagnoses');
+                if (altDiagnosesEl && altDiagnosesEl.innerHTML.includes('border rounded')) {
+                    content += `
+=================================================================
+KEMUNGKINAN DIAGNOSIS LAINNYA:
+=================================================================
+`;
+                    const altElements = altDiagnosesEl.querySelectorAll('.border.rounded');
+                    altElements.forEach((element, index) => {
+                        if (index < 3) {
+                            const diagnosisName = element.querySelector('.fw-semibold')?.textContent || '';
+                            const confidence = element.querySelector('.badge')?.textContent || '';
+                            content += `${index + 1}. ${diagnosisName} - ${confidence}\n`;
+                        }
+                    });
+                }
+
+                // Add recommendations
                 
+
+
                 const blob = new Blob([content], { type: 'text/plain' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `Hasil_Diagnosis_${patientName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.txt`;
+                a.download = `Hasil_Diagnosis_HyperCare_${patientName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.txt`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
-                console.log('Text download completed');
-                showNotification('Hasil diagnosis berhasil diunduh!', 'success');
+                console.log('Enhanced text download completed');
+                showNotification('Hasil diagnosis lengkap berhasil diunduh!', 'success');
                 
             } catch (error) {
-                console.error('Error downloading text result:', error);
+                console.error('Error downloading enhanced text result:', error);
                 showNotification('Terjadi kesalahan saat mengunduh hasil.', 'danger');
             }
         }

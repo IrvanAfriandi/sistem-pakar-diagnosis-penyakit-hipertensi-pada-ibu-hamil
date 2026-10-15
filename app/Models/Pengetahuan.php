@@ -12,6 +12,7 @@ class Pengetahuan extends Model
 
     protected $table = 'basis_pengetahuan';
     protected $primaryKey = 'id_pengetahuan';
+    public $timestamps = false;
     
     protected $fillable = [
         'id_penyakit',
