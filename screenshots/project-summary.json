@@ -1,0 +1,44 @@
+{
+  "slug": "sistem-diagnosis-kehamilan",
+  "title": "HyperCare",
+  "category": "Sistem Pakar Kesehatan",
+  "shortDescription": "Sistem pakar untuk membantu diagnosis hipertensi pada ibu hamil.",
+  "tags": ["Laravel", "PHP", "Certainty Factor"],
+  "about": "HyperCare adalah aplikasi sistem pakar untuk membantu proses diagnosis penyakit terkait hipertensi pada ibu hamil. Aplikasi ini menyediakan alur konsultasi publik serta panel admin dan petugas untuk mengelola data pasien, penyakit, gejala, dan basis pengetahuan. Project dibangun dengan Laravel 10, PHP, dan database relasional.",
+  "features": [
+    "Dashboard statistik konsultasi dan data kesehatan",
+    "Manajemen pasien, pengguna, penyakit, dan gejala",
+    "Basis pengetahuan dengan nilai Certainty Factor",
+    "Alur konsultasi publik berbasis tingkat gejala",
+    "Hasil diagnosis dengan tingkat keyakinan",
+    "Riwayat konsultasi dan ekspor laporan"
+  ],
+  "technologies": [
+    "Laravel 10",
+    "PHP 8.1+",
+    "MySQL",
+    "SQLite untuk database screenshot sementara",
+    "Blade Templates",
+    "Bootstrap 5",
+    "Font Awesome",
+    "SweetAlert2",
+    "Vite",
+    "Laravel Sanctum"
+  ],
+  "liveUrl": null,
+  "repoUrl": "https://github.com/IrvanAfriandi/sistem-pakar-diagnosis-penyakit-hipertensi-pada-ibu-hamil",
+  "screenshots": [
+    { "file": "01-dashboard-admin.webp", "caption": "Dashboard admin menampilkan statistik pasien, konsultasi, penyakit, dan gejala." },
+    { "file": "02-data-pasien-admin.webp", "caption": "Daftar pasien dummy dengan pencarian nama aktif." },
+    { "file": "03-form-pasien-admin.webp", "caption": "Form tambah pasien terisi data contoh di dalam modal." },
+    { "file": "04-manajemen-pengguna-admin.webp", "caption": "Form manajemen pengguna untuk menetapkan role admin atau petugas." },
+    { "file": "05-data-penyakit-admin.webp", "caption": "Daftar penyakit dan form tambah kondisi kesehatan contoh." },
+    { "file": "06-data-gejala-admin.webp", "caption": "Daftar gejala dengan pencarian aktif." },
+    { "file": "07-basis-pengetahuan-admin.webp", "caption": "Basis pengetahuan Certainty Factor dengan filter dan form aturan." },
+    { "file": "08-riwayat-konsultasi-admin.webp", "caption": "Riwayat konsultasi dengan modal detail dan opsi laporan." },
+    { "file": "09-dashboard-petugas.webp", "caption": "Dashboard yang dapat diakses oleh role petugas." },
+    { "file": "10-login.webp", "caption": "Halaman login untuk autentikasi pengguna aplikasi." },
+    { "file": "11-form-diagnosis-publik.webp", "caption": "Form diagnosis dengan gejala dan nilai keyakinan terisi." },
+    { "file": "12-hasil-diagnosis-publik.webp", "caption": "Hasil diagnosis menampilkan penyakit utama dan tingkat kepercayaan." }
+  ]
+}
